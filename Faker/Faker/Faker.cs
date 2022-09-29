@@ -5,7 +5,8 @@ namespace lab2Faker.Core
 {
     public class Faker
     {
-        Random rnd = new Random();
+        private Random rnd = new Random();
+        private MethodInfo create = typeof(Faker).GetMethod("Create");
 
         public T Create<T>()
         {
@@ -40,10 +41,12 @@ namespace lab2Faker.Core
 
             // create instance of type T
             T result = Activator.CreateInstance<T>();
-
-            TypeInfo info = t.GetTypeInfo();
-            IEnumerable<PropertyInfo> pList = info.DeclaredProperties;
-            IEnumerable<MethodInfo> mList = info.DeclaredMethods;
+            foreach (var fld in t.GetFields())
+            {
+                Type fldtype = fld.FieldType;
+                MethodInfo method = create.MakeGenericMethod(fldtype);
+                fld.SetValue(result, method.Invoke(this, null));
+            }
 
             return result;
         }
