@@ -39,6 +39,7 @@ namespace lab2Faker.Tests
             TestPrimitiveGenerate<short>(f);
             TestPrimitiveGenerate<ushort>(f);
             TestPrimitiveGenerate<long>(f);
+            TestPrimitiveGenerate<decimal>(f);
 
 
             Assert.Pass();
