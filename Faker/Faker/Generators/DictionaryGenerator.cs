@@ -22,11 +22,11 @@ namespace lab2Faker.Generators
             {
                 var len = context.Random.Next(3, 5);
                 for (int i = 0; i < len; i++) 
-                { 
-                    e.Add(
-                        context.Faker.Create(typeToGenerate.GetGenericArguments()[0]),
-                        context.Faker.Create(typeToGenerate.GetGenericArguments()[1])
-                        );
+                {
+                    var KEY = context.Faker.Create(typeToGenerate.GetGenericArguments()[0]);
+                    var VALUE = context.Faker.Create(typeToGenerate.GetGenericArguments()[1]);
+                    if (!e.Contains(KEY))
+                        e.Add(KEY, VALUE);
                 }
             }
             return e;

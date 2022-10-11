@@ -42,7 +42,7 @@ namespace lab2Faker.Generators
                     return constructor.Invoke(initedArgs);
                 } catch (Exception ex) { Console.WriteLine(ex); }
             }
-            if (!t.IsValueType)
+            if (t.IsValueType)
             {
                 try
                 {

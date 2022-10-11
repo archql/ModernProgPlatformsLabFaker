@@ -48,6 +48,9 @@ namespace lab2Faker.Tests
             TestPrimitiveGenerate<long>(f);
             TestPrimitiveGenerate<decimal>(f);
 
+            TestPrimitiveGenerate<TS>(f);
+            
+
             Assert.Pass();
         }
 
@@ -125,6 +128,12 @@ namespace lab2Faker.Tests
                 Assert.That(item.Key.Count, Is.GreaterThan(0));
                 Assert.That(item.Value.Count, Is.GreaterThan(0));
             }
+        }
+
+        public struct TS
+        {
+            public string Value;
+            public int hello;
         }
 
         class E
