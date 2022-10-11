@@ -4,7 +4,7 @@ namespace lab2Faker.Generators
 {
     internal class FloatGenerator : IValueGenerator
     {
-        public float ScaleFactor = 100;
+        static public float ScaleFactor = 100;
 
         public readonly Type GeneratorType = typeof(float);
         public bool CanGenerate(Type type)

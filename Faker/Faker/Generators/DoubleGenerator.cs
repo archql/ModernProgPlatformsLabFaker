@@ -4,7 +4,7 @@ namespace lab2Faker.Generators
 {
     internal class DoubleGenerator : IValueGenerator
     {
-        public double ScaleFactor = 100;
+        static public double ScaleFactor = 100;
 
         public readonly Type GeneratorType = typeof(double);
         public bool CanGenerate(Type type)

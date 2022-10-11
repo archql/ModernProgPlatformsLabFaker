@@ -4,7 +4,7 @@ namespace lab2Faker.Generators
 {
     internal class DecimalGenerator : IValueGenerator
     {
-        public double ScaleFactor = 100;
+        public static double ScaleFactor = 100;
 
         public readonly Type GeneratorType = typeof(decimal);
         public bool CanGenerate(Type type)

@@ -7,8 +7,10 @@ namespace lab2Faker.Core
 {
     public class Faker
     {
-        private readonly List<IValueGenerator> m_generators;
+        private readonly List<IValueGenerator> m_generators; // private readonly
         private readonly GeneratorContext m_gcontext;
+
+        public bool isOk() { return m_generators.Last().CanGenerate(null);  }
 
         public Faker()
         {

@@ -1,12 +1,17 @@
 namespace lab2Faker.Tests
 {
     using lab2Faker.Core;
+
+    using crazyDictionary = Dictionary<Dictionary<int, int>, Dictionary<int, int>>;
     public class Tests
     {
+        private Faker f;
 
         [SetUp]
         public void Setup()
         {
+            f = new Faker();
+            Assert.That(f.isOk(), Is.EqualTo(true));
         }
 
         private T TestPrimitiveGenerate<T>(Faker f)
@@ -28,10 +33,10 @@ namespace lab2Faker.Tests
             return (T)i;
         }
 
+
         [Test]
         public void TestPrimitives()
         {
-            Faker f = new Faker();
             // test
             TestPrimitiveGenerate<int>(f);
             TestPrimitiveGenerate<double>(f);
@@ -49,8 +54,6 @@ namespace lab2Faker.Tests
         [Test]
         public void TestSimpleObjects()
         {
-            Faker f = new Faker();
-
             Assert.That(typeof(A).GetFields().Length, Is.Not.EqualTo(0));
             Assert.That(typeof(B).GetFields().Length, Is.Not.EqualTo(0));
 
@@ -72,8 +75,6 @@ namespace lab2Faker.Tests
         [Test]
         public void TestConstructiveObjects()
         {
-            Faker f = new Faker();
-
             C c = TestPrimitiveGenerate<C>(f);
 
             Assert.That(c.x, Is.Not.EqualTo(0));
@@ -93,8 +94,6 @@ namespace lab2Faker.Tests
         [Test]
         public void TestRecursion()
         {
-            Faker f = new Faker();
-
             E e = TestPrimitiveGenerate<E>(f);
             Assert.That(e.x, Is.Not.EqualTo(0));
             Assert.That(e.next, Is.Not.EqualTo(null));
@@ -103,6 +102,31 @@ namespace lab2Faker.Tests
             Assert.That(e.next.next.next.next, Is.Not.EqualTo(null));
             Assert.That(e.next.next.next.next.next, Is.EqualTo(null));
         }
+
+        [Test]
+        public void TestCollection()
+        {
+            //Dictionary<A, E> d = f.Create<Dictionary<A, E>>();
+            Dictionary<int, string> d = f.Create<Dictionary<int, string>>();
+            Assert.That(d.Count, Is.GreaterThan(0));
+
+            Dictionary<A, E> d2 = f.Create<Dictionary<A, E>>();
+            foreach (var item in d2)
+            {
+                Assert.That(item.Key, Is.Not.Null);
+                Assert.That(item.Value, Is.Not.Null);
+            }
+
+            crazyDictionary d3 = f.Create<crazyDictionary>();
+            foreach (var item in d3)
+            {
+                Assert.That(item.Key, Is.Not.Null);
+                Assert.That(item.Value, Is.Not.Null);
+                Assert.That(item.Key.Count, Is.GreaterThan(0));
+                Assert.That(item.Value.Count, Is.GreaterThan(0));
+            }
+        }
+
         class E
         {
             public int x;
