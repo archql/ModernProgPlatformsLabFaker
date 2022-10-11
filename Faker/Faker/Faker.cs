@@ -1,60 +1,61 @@
-﻿using System;
+﻿using lab2Faker.Generators;
+using System;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace lab2Faker.Core
 {
     public class Faker
     {
-        private Random rnd = new Random();
-        private MethodInfo create = typeof(Faker).GetMethod("Create");
+        private readonly List<IValueGenerator> m_generators;
+        private readonly GeneratorContext m_gcontext;
+
+        public Faker()
+        {
+            m_gcontext = new GeneratorContext(new Random(), this);
+            m_generators = new List<IValueGenerator>();
+
+            // get all generators from assemblies (except the last one - ObjectGenerator)
+            var types = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(i => i.GetTypes())
+                .Where(j => typeof(IValueGenerator).IsAssignableFrom(j) && 
+                        !j.IsInterface && !Equals(j.Name, "ObjectGenerator"))
+                .ToList();
+            // add them to generators list
+            foreach (var type in types)
+            {
+                try
+                {
+                    var gen = (IValueGenerator?)Activator.CreateInstance(type);
+                    if (gen != null)
+                    {
+                        m_generators.Add(gen);
+                    }
+                } catch { };
+            }
+            // add last of generators -- ObjectGenerator
+            m_generators.Add(new ObjectGenerator());
+        }
 
         public T Create<T>()
         {
-            // get type t
-            Type t = typeof(T);
-            if (t.IsPrimitive || t == typeof(Decimal))
+            return (T)Create(typeof(T));
+        }
+
+        // Может быть вызван изнутри Faker, из IValueGenerator (см. ниже) или пользователем
+        public object Create(Type t)
+        {
+            // Процедура создания и инициализации объекта.
+
+            // check if in m_generators
+            foreach (IValueGenerator g in m_generators)
             {
-                switch (Type.GetTypeCode(t))
+                if (g.CanGenerate(t))
                 {
-                    case TypeCode.Boolean: return (T)Convert.ChangeType(rnd.Next(1) == 0, t);
-                    case TypeCode.Byte: return (T)Convert.ChangeType(rnd.Next(256), t);
-                    case TypeCode.SByte: return (T)Convert.ChangeType(rnd.Next(256) - 128, t);
-                    case TypeCode.Int16:
-                    case TypeCode.Int32:
-                    case TypeCode.Int64:
-                        return (T)Convert.ChangeType(rnd.Next(UInt16.MaxValue) - Int16.MaxValue, t);
-                    case TypeCode.UInt16:
-                    case TypeCode.UInt32:
-                    case TypeCode.UInt64:
-                    case TypeCode.Char:
-                        return (T)Convert.ChangeType(rnd.Next(UInt16.MaxValue), t);
-                    case TypeCode.Double:
-                    case TypeCode.Single:
-                    case TypeCode.Decimal:
-                        return (T)Convert.ChangeType(rnd.NextSingle() * 100, t);
+                    return g.Generate(t, m_gcontext);
                 }
             }
-            else if (t == typeof(string))
-            {
-                return (T)Convert.ChangeType(RandomString(rnd.Next(5, 25)), t);
-            }
-
-            // create instance of type T
-            T result = Activator.CreateInstance<T>();
-            foreach (var fld in t.GetFields())
-            {
-                Type fldtype = fld.FieldType;
-                MethodInfo method = create.MakeGenericMethod(fldtype);
-                fld.SetValue(result, method.Invoke(this, null));
-            }
-
-            return result;
-        }
-        private string RandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[rnd.Next(s.Length)]).ToArray());
+            return null;
         }
     }
 }

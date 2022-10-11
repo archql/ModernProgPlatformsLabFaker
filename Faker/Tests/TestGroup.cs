@@ -43,7 +43,6 @@ namespace lab2Faker.Tests
             TestPrimitiveGenerate<long>(f);
             TestPrimitiveGenerate<decimal>(f);
 
-
             Assert.Pass();
         }
 
@@ -51,11 +50,6 @@ namespace lab2Faker.Tests
         public void TestSimpleObjects()
         {
             Faker f = new Faker();
-
-            // create instance of type T
-            // get type t
-            Type t = typeof(A);
-            A result = Activator.CreateInstance<A>();
 
             Assert.That(typeof(A).GetFields().Length, Is.Not.EqualTo(0));
             Assert.That(typeof(B).GetFields().Length, Is.Not.EqualTo(0));
@@ -74,6 +68,59 @@ namespace lab2Faker.Tests
 
             Assert.Pass();
         }
+
+        [Test]
+        public void TestConstructiveObjects()
+        {
+            Faker f = new Faker();
+
+            C c = TestPrimitiveGenerate<C>(f);
+
+            Assert.That(c.x, Is.Not.EqualTo(0));
+            Assert.That(c.y, Is.Not.EqualTo(0));
+            Assert.That(c.z, Is.Not.EqualTo(0));
+            Assert.That(c.w, Is.EqualTo(0));
+
+            D d = TestPrimitiveGenerate<D>(f);
+
+            Assert.That(d.x, Is.EqualTo(0));
+            Assert.That(d.y, Is.EqualTo(0));
+            Assert.That(d.z, Is.Not.EqualTo(0));
+            Assert.That(d.w, Is.Not.EqualTo(0));
+            Assert.That(d.name, Is.EqualTo("Hello"));
+        }
+
+        class D : C
+        {
+            public string name { get; private set; } = "Hello";
+            public D(int w) : base(w, 0, 0)
+            {
+            }
+
+            public override string ToString()
+            {
+                return "{ name = " + name + "; base: " + base.ToString() + " }";
+            }
+        }
+
+        class C
+        {
+            public int x { get; private set; }
+            public int y { get; private set; }
+            public int z;
+            public int w { get; private set; } = 0;
+
+            public C()
+            { }
+            public C(int x, int y) { this.x = x; this.y = y;}
+            protected C(int w, int x, int y) { this.w = w; this.x = x; this.y = y; }
+
+            public override string ToString()
+            {
+                return "{ x = " + x + "; y = " + y + "; z = " + z + "; w = " + w + " }";
+            }
+        }
+
         class A
         {
             public int id;
