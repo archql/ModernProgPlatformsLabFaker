@@ -90,6 +90,29 @@ namespace lab2Faker.Tests
             Assert.That(d.name, Is.EqualTo("Hello"));
         }
 
+        [Test]
+        public void TestRecursion()
+        {
+            Faker f = new Faker();
+
+            E e = TestPrimitiveGenerate<E>(f);
+            Assert.That(e.x, Is.Not.EqualTo(0));
+            Assert.That(e.next, Is.Not.EqualTo(null));
+            Assert.That(e.next.next, Is.Not.EqualTo(null));
+            Assert.That(e.next.next.next, Is.Not.EqualTo(null));
+            Assert.That(e.next.next.next.next, Is.Not.EqualTo(null));
+            Assert.That(e.next.next.next.next.next, Is.EqualTo(null));
+        }
+        class E
+        {
+            public int x;
+            public E? next;
+
+            public override string ToString()
+            {
+                return "{ val = " + x + "; base: " + ((next == null) ? "null" : next.ToString()) + " }";
+            }
+        }
         class D : C
         {
             public string name { get; private set; } = "Hello";

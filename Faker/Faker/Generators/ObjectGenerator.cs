@@ -4,6 +4,13 @@ namespace lab2Faker.Generators
 {
     internal class ObjectGenerator : IValueGenerator
     {
+        private readonly ObjRecursionManager recursionManager;
+
+        public ObjectGenerator(ObjRecursionManager orm)
+        {
+            recursionManager = orm;
+        }
+
         private static object? GetDefaultValue(Type t)
         {
             if (t.IsValueType) 
@@ -19,6 +26,8 @@ namespace lab2Faker.Generators
         }
         private object CreateObject(Type t, GeneratorContext ctx)
         {
+            if (!recursionManager.tryEnterRecursion(t))
+                return null;
             var constructors = t.GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
                 .OrderByDescending(t => t.GetParameters().Length)
                 .ToList();
@@ -28,7 +37,10 @@ namespace lab2Faker.Generators
                     Select(i => i.ParameterType).
                     Select(ctx.Faker.Create).
                     ToArray();
-                return constructor.Invoke(initedArgs);
+                try
+                {
+                    return constructor.Invoke(initedArgs);
+                } catch (Exception ex) { Console.WriteLine(ex); }
             }
             if (!t.IsValueType)
             {
@@ -53,6 +65,8 @@ namespace lab2Faker.Generators
                 if (Equals(fld.GetValue(o), GetDefaultValue(fld.PropertyType)) && fld.CanWrite && fld.SetMethod != null && fld.SetMethod.IsPublic)
                     fld.SetValue(o, ctx.Faker.Create(fld.PropertyType));
             }
+
+            recursionManager.leaveRecursion(t);
         }
         public object Generate(Type typeToGenerate, GeneratorContext context)
         {

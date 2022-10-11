@@ -34,7 +34,7 @@ namespace lab2Faker.Core
                 } catch { };
             }
             // add last of generators -- ObjectGenerator
-            m_generators.Add(new ObjectGenerator());
+            m_generators.Add(new ObjectGenerator(new ObjRecursionManager(4)));
         }
 
         public T Create<T>()
